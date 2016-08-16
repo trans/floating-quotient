@@ -21,11 +21,13 @@ So here then is an idea that has occured to me. Instead of storing a significand
 
 For example, using only 16-bits, we can encode `1 1/2` as:
 
-    | 0 || 0 | 1 | 0 || 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 || 0 | 1 || 1 | 0 |
+    | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 0 |
+     ___ ___________ _______________________________ _______ _______
+     sign  q-size                whole                 num.   denom.
     
 Where the first bit is the sign bit (positive or negative), the next three bits indicate the size of the numerator and  denomenator of the fraction, which are always the same size since the numerator's value can never be greater in value than denomenator's (otherwise it would need to be reduced). 
 
-In this way we can represent a wide swath of rational numbers, far more than floating-point, without loss of preciscion within the limits of the unit size, and with uniformity. 
+In this way we can represent a refined swath of rational numbers, far more than floating-point, without loss of preciscion within the limits of the unit size, and with uniformity. 
 
 Compactness is also fairly good. Although not nearly the breadth of float-point, the trade-off for precision and unifority appear more than adequate. Consider the following table.
 
