@@ -19,11 +19,19 @@ So here is the idea that occurs to me. Instead of storing a ... in a fixed numbe
 
     | 0 || 0 | 1 | 0 || 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 || 0 | 1 || 1 | 0 |
     
-Where the first bit is the sign bit (positive or negative), the next three bits indicate the size of the denomenator of the fraction. The numerator is always the same size as the numerator becuase it can never be greater in value than denomenator's value (otherwise it would need to be reduced). 
+Where the first bit is the sign bit (positive or negative), the next three bits indicate the size of the numerator and  denomenator of the fraction. which are always the same size becuase the numerator's value can never be greater in value than denomenator's value (otherwise it would need to be reduced). In this way we can represent a wide swath of rational numbers, far more than floating-point, without loss of preciscion within the limits of the unit size, and with uniformity. 
 
-    |  word size |  q bits  |  min    |  max   |  mid  |
+Compactness is also fairly good. Although not nearly the breadth of float-point, the trade-off for precision and unifority appears more than adequate. 
+
+    |  Size      |  Q Size  |  Min    |  Max   |  Mid  |
     |  32 bits   |   4      | 1/2^13  |  2^27  |  2^9  |
     |  64 bits   |   5      | 1/2^29  |  2^58  |  2^19 |
     |  128 bits  |   6      | 1/2^60  |  2^121 |  2^40 |
     |  256 bits  |   7      | 1/2^124 |  2^249 |  2^83 |
+
+The Q-size, to be clear, the number of bits required to store the size of the denomenator (and numerator). From this we can calculate the size of the significand as `s = w - (2q + 1)`, where w is the total bit size and the `1` is subtracted for the sign bit. The *Mid* is middle value where the number of bit dedicated to the significand is the same as those decidcated to the numerator and denomentator. Considering the limits of each word size, 32-bits is limited, having a maximum mid-range value of 512. (In other words, if we needed fractional accuracy of 1 in 512, the whole portion could not exceed 512.) But 64-bits appears adaqute for most practical applications, and certainly 256-bits is more than adquate for all but the most esoteric applications.
+
+As for speed, I did a limited comparison of Ruby's floating point versus it's rational representation and found a difference of about 5x. While a very rough guestimate, I am confident a hardware implmentation of floating-qoutients would allow comprable speeds.
+
+There are some tweaks that might be made to this format. For instance, the denomenator can't ever be just `1`, as that would indicate a whole number, not a fraction, and if it were `0`, it could indicate an infinity. So the denomenator could alwasy be the value plus two. Likewise, because the numerator can never be less than the denomenator, the numerator could be the value plus three. Another option is for the numerator and denomenator to always be at least one bit in size, or for it to alwasy come in sets of 2 bits. The former would reduce the number of redundent representations a little, and the later trade a bit from the Q size and the significand, and grant it to the fractional part. However, the gains garnered from any of thes tweaks,  may not outweight the added complexity to implmentation. That remains to be ascertained.
 
